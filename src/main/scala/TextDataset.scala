@@ -96,8 +96,8 @@ object TextDataset {
   }
 
   def loadDataSpark(inputPath : String, sc : SparkSession, windowSize: Int): RDD[DataSet] = {
-    logger.error(s"Load and computing dataset from : " + inputPath)
-    logger.error(s"Window Size : " + windowSize)
+    logger.info(s"Load and computing dataset from : " + inputPath)
+    logger.info(s"Window Size : " + windowSize)
     // Filter sentences that longer than 20 character and more than 5 words
     val distData = sc.sparkContext.textFile(inputPath).filter(_.length>20).filter(_.split(" ").length>5)
     distData.flatMap(sentence => {
@@ -129,38 +129,37 @@ object TextDataset {
 //      logger.error("Data process " + count)
 //    }
 
-    logger.error("Try saving it to HDFS Object File")
+    logger.info("Try saving it to HDFS Object File")
     val hdfs = conf.getString("HDFS")
     val fileSystem = FileSystem.get(new java.net.URI(hdfs), sc.hadoopConfiguration)
     val hdfsDirectoryPath = conf.getString("HDFSDirectory")
 
-    var count = 0
-
-    while (dataSetIterator.hasNext) {
-      val ds: DataSet = dataSetIterator.next()
-      val filePath = s"$hdfs/$hdfsDirectoryPath/dataset_$count.bin"
-      val path = new Path(filePath)
-      // Use resource management with Scala's `try-with-resources` equivalent
-      val outputStream = new BufferedOutputStream(fileSystem.create(path))
-      try {
-        ds.save(outputStream)
-      } finally {
-        outputStream.close()
+    (0 until 100).foreach( count => {
+      if (dataSetIterator.hasNext) {
+        val ds: DataSet = dataSetIterator.next()
+        val filePath = s"$hdfs/$hdfsDirectoryPath/dataset_$count.bin"
+        val path = new Path(filePath)
+        // Use resource management with Scala's `try-with-resources` equivalent
+        val outputStream = new BufferedOutputStream(fileSystem.create(path))
+        try {
+          ds.save(outputStream)
+        } finally {
+          outputStream.close()
+        }
+        logger.info("Data process " + count)
       }
-      count = count + 1
-      logger.error("Data process " + count)
-    }
-//    logger.error("Try saving it to HDFS Object Files")
+    })
+//    logger.info("Try saving it to HDFS Object Files")
 //    textDataset.saveAsObjectFile(hdfsObjectPath)
 
-//    logger.error("Try saving it to HDFS Files")
+//    logger.info("Try saving it to HDFS Files")
 //    val hdfsPath = conf.getString("HDFSFile")
 //    textDataset.saveAsTextFile(hdfsPath)
     s"$hdfs/$hdfsDirectoryPath"
   }
 
   def loadFromFiles(sc: SparkContext, conf: Config) : RDD[DataSet] = {
-    logger.error("Try loading DataSet from HDFS Object File")
+    logger.info("Try loading DataSet from HDFS Object File")
     val hdfsObjectPath = conf.getString("HDFSDirectory")
     val slwDataset = sc.objectFile[DataSet](hdfsObjectPath)
 

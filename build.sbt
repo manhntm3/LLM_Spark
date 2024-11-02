@@ -36,14 +36,14 @@ libraryDependencies ++= Seq(
 //  "org.bytedeco" % "openblas" % "0.3.21-1.5.8",
 )
 
-libraryDependencies += "io.vertx" % "vertx-web" % "3.9.16"
+//libraryDependencies += "io.vertx" % "vertx-web" % "3.9.16"
 
 libraryDependencies ++= Seq(
   "org.scalactic" %% "scalactic" % "3.2.19",
   "org.scalatest" %% "scalatest" % "3.2.19" % Test
 )
 
-assembly / logLevel := Level.Debug
+//assembly / logLevel := Level.Debug
 assembly / assemblyMergeStrategy := {
   case PathList("META-INF", "services", "org.nd4j.linalg.factory.Nd4jBackend") => MergeStrategy.filterDistinctLines
   case PathList("META-INF", "services", "org.apache.hadoop.fs.FileSystem") => MergeStrategy.filterDistinctLines

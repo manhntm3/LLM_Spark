@@ -4,12 +4,27 @@ import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.dataset.DataSet
 import utils.AppLogger
 import model.{EmbeddingModel, ModelParam, Tokenizer}
+import org.deeplearning4j.util.ModelSerializer
 import org.nd4j.linalg.factory.Nd4j
+
+import java.io.{FileNotFoundException, InputStream}
 
 object SlidingWindowWithPositionalEmbedding extends Serializable {
   private val logger = AppLogger("SlidingWindowWithPositionalEmbedding")
   val tokenizer = new Tokenizer()
-  val model = EmbeddingModel.fromPretrained("src/main/resources/EMB.zip")
+
+  val modelStream: InputStream = getClass.getResourceAsStream("/EMB.zip")
+
+  val model = {
+    if (modelStream != null) {
+      ModelSerializer.restoreMultiLayerNetwork(modelStream)
+    } else {
+      throw new FileNotFoundException("Model file not found in resources")
+    }
+  }
+  modelStream.close() // Close the stream after loading
+
+//  val model = EmbeddingModel.fromPretrained("src/main/resources/EMB.zip")
 
   def createSlidingWindowWithPositionalEmbedding(tokens : List[String], windowSize : Int) : List[DataSet] = {
     tokens.sliding(windowSize).collect {
