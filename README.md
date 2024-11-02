@@ -44,7 +44,7 @@ File `wiki.train.tokens` contains raw text by combining text from various articl
 For simplicity, I also used a small fraction of dataset (around 30MB) to train a viable model to reduce computation cost. Given the small size of the dataset, when tokenize and compute sliding window embedding, the generated dataset could be five times larger than the original size(~200MB).
 
 ### DataProcessing
-Data is load from input and map to sliding window: [TextDataset.scala](./src/main/scala/TextDataset.scala) \
+Data is load from input and map to sliding window: [TextDataset.scala](./src/main/scala/TextDataset.scala) 
 
 Each token is produced by `Jtokkit` the same way as the first homework, except for simplicity I only take the first element for every word. The wikipedia articles contain many new words and jargons so very likely the Jtokkit will produce a token with more than one integer. For example:  `Hello -> [1234, 21324]` only take `1234` \
 The network then produce the probability of the next word based on the embedding and output via activation softmax layer. 
@@ -54,11 +54,11 @@ I used 10 dimension for the embedding in my experiment. Higher dimension could g
 ## Training
 I trained using Deeplearning4J with Spark. 
 
-## Dataset information
-Training information is done as see in the homework description. \
+## Training information
+Training information is done as see in the homework description. 
 
 The model contains a LSTM Neural network layer defined by ND4J as professor suggested. \
-The idea is using current sliding window word embedding token to predict the next word. \
+The idea is using current sliding window word embedding token to predict the next word. 
 
 We should call `.persist()` before do `.fit()` to keep the dataset in memory and avoid recomputation.
 
@@ -69,22 +69,29 @@ I ran the training for 40 epochs, and the result could be seen as below:
 
 ## Run locally
 
-Step to run locally:
+### Step to run locally
 
-Set the training parameter in the config in the [application.conf](./src/main/resources/application.conf)
+Set the training parameter in the config in the [application.conf](./src/main/resources/application.conf) 
+
+Assume `INPUT_DIRECTORY` is a directory contain the dataset, could be in local or in HDFS(e.g: `hdfs://localhost:9000/user/manh/WikiText/`) 
+
+And `OUTPUT_DIRECTORY` is a directory where we want to save the model. Could be in local or in HDFS. The model will be saved as `outputModel.bin`
 
 And then 
 ```
-sbt clean compile "run HDFS_INPUT HDFS_OUTPUT"
+sbt clean compile "run INPUT_DIRECTORY OUTPUT_DIRECTORY"
 sbt clean compile test
 ```
-Assume HDFS_INPUT is a directory contain the dataset(e.g: `hdfs://localhost:9000/user/manh/WikiText/`)
-And HDFS_OUTPUT is a directory where we want to save the model. The model will be saved as `outputModel.bin`
 
-Step to build jar file: The jar file is built using assembly plugin of sbt. The output of the jar file is located at `target/scala-version/`
+
+### Step to build jar file
+
+The jar file is built using assembly plugin of sbt. The output of the jar file is located at `target/scala-version/`
 ```
 sbt -J-Xmx4G clean compile assembly
 ```
+
+### Run with Spark
 
 Command to submit the job to spark locally: 
 ```
@@ -92,8 +99,8 @@ spark-submit --class SparkAssigment \
 --master "local[*]" \
 --executor-memory 4G \
 --total-executor-cores 4 \
-./CS441-assembly-0.1.0.jar \
-HDFS_INPUT HDFS_OUTPUT
+./jar_filename.jar \
+INPUT_DIRECTORY OUTPUT_DIRECTORY
 ```
 
 ## Deploy to EMR
@@ -106,7 +113,16 @@ HDFS_INPUT HDFS_OUTPUT
 - Create a cluster configuration: pick One primary And Two Core in the set up. If the dataset is bigger, you might want to increase the number of Core Machine
 - Other settings: Scaling and provisioning, networking, security leave as default settings.
 - In the steps settings: Select the JAR file built from previous section (s3 path)
+
 Command to run a CustomJAR on EMR:
+
+```
+spark-submit --deploy-mode client \
+--class SparkAssigment \
+--master yarn \
+s3://JAR_LOCATION \
+s3://INPUT_DIRECTORY s3://OUTPUT_DIRECTORY
+```
 
 
 ## Limitation
