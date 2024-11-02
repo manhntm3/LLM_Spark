@@ -1,0 +1,24 @@
+<!--    Enables Logback to periodically check for configuration file changes and reload the settings if necessary-->
+<configuration scan="true" scanPeriod="60 seconds" trace="true">
+    <!-- Console Appender -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{MM-dd HH:mm:ss} [%thread] %-5level %logger{10} %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File Appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <encoder>
+            <pattern>%d{MM-dd HH:mm:ss} [%thread] %-5level %logger{10} %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root Logger -->
+    <root level="info">
+        <appender-ref ref="FILE" />
+        <appender-ref ref="STDOUT" />
+    </root>
+
+</configuration>
