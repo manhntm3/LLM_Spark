@@ -1,4 +1,4 @@
-# CS441_Fall2024
+# CS441_Fall2024 Assignment 2
 Class repository for CS441 on Cloud Computing taught at the University of Illinois, Chicago in Fall, 2024
 
 
@@ -7,31 +7,32 @@ First Name: Manh \
 Last Name: Nguyen \
 UIN: 650327734 \
 UIC Mail: mnguy104@uic.edu \
-Link to youtube video: https://youtu.be/NQZ5MLppe34
+Link to youtube video: 
 
-# Homework 1
+# Homework 2
 ## Description
-Description is in [here](./Homeworks/Homework1.md).
+Description is in [here](./Homeworks/Homework2.md).
 ## Requirements
 The project has been ran by using the following version. \
-Scala 3.5.0 \
+Scala 2.12.18 \
 Hadoop 3.4.0/3.3.6 \
+Spark 3.5.3 \
 AWS EMR 7.3 \
 I haven't got time to test with other version but suspect little/no modification will be required.
 
 ## Resources
 The project is managed through a typesafe configuration library by this file [application.conf](./src/main/resources/application.conf) . We can specify parameter of each task MapReduce, information about model config, etc,... through this file \
-The logger used in the project is Logback. It could be config through [logback.xml](./src/main/resources/logback.xml)
+The logger used in the project is Logback. It could be config through [logback.xml](./src/main/resources/logback.xml). Spark also used Log4j2 as a logger so it can also be config through [log4j2.properties](./src/main/resources/log4j2.properties)
 
 ## Structure
 
 The scala folder contain main scala code for the project. \
 Main function is provided in `main.scala` \
 The dataset is managed through `TextDataset.scala` \
-Folder `utils` contain Config and Log implementation \
-Folder `mapreduce` contain the main MapReduce implementation
-- `tok` folder contains JTokkit MapReduce implementation for the first task
-- `emb` folder contains ND4J Embedding Model and Word2Vec implementation for the second task
+Folder `utils` contain Config, Log and Spark implementation \
+Folder `model` contain the embedding (from HW1) and LSTM model implementation
+- `data` folder contains processing data for training
+- `main.scala` contains training code
 
 ## Dataset
 
@@ -39,20 +40,15 @@ The dataset used in this assignment is `WikiText`. It contains many Wikipedia ar
 I downloaded it from [here](https://developer.ibm.com/exchanges/data/all/wikitext-103/) 
 
 File `wiki.train.tokens` contains raw text by combining text from various articles into one large file.
+For simplicity, I also used a small fraction of dataset (around 30MB) to train a viable model to reduce computation cost
 
-### Sharding
-Data is splitting into shards using Scala code [TextDataset.scala](./src/main/scala/TextDataset.scala) \
-Basically it will calculate the shardSize based on number of lines in the dataset and split equally between each shard. \
-Load each line in the dataset instead of load everything into memory keep the program from run out of memory
+### DataProcessing
+Data is load from input and map to sliding window: [TextDataset.scala](./src/main/scala/TextDataset.scala) \
 
-## First task 
-The task is computing word token using `Jtokkit`. \
-`JTokkit` is initialized when constructing the MR. \
-Firstly the map key is construct by appending the computed token along with the key. \
-The output of Mapper is in format: `word, token, one` \
-The reducer reduce the counting number of key by calculate the sum of apperance in the corpus text. \
+## Training
+I trained using Deeplearning4J with Spark. 
 
-## Second task
+## Training information
 The task is computing close words using embedding from Embedding Model. \
 I did try `Word2Vec` and it run successfully but it ran out of memory or ran into segmentation fault access so I switch the model to simple two layers Neural network defined by ND4J as professor suggested. \
 The idea is using current word token to predict the next word token. \

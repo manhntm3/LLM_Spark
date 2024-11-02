@@ -20,7 +20,7 @@ libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.0.13"
 
 libraryDependencies += "com.knuddels" % "jtokkit" % "1.1.0"
 
-libraryDependencies += "org.apache.spark" %% "spark-core" % "3.5.3"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.3.0"
 
 //
 libraryDependencies ++= Seq(

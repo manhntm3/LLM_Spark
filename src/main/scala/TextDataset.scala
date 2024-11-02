@@ -1,6 +1,6 @@
 
 
-import com.typesafe.config.ConfigFactory
+
 import com.typesafe.config.Config
 import data.SlidingWindowWithPositionalEmbedding.createSlidingWindowWithPositionalEmbedding
 import org.apache.spark.SparkContext
@@ -14,7 +14,6 @@ import scala.jdk.CollectionConverters._
 import scala.io.Source
 import utils.{AppConfig, AppLogger}
 
-import java.io.File
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.sql.SparkSession
 
@@ -25,8 +24,7 @@ import scala.util.Using
 TextDataset: Class for any dataset for the task
 dataName : name of the dataset
 dataLocation: list of string contains list of file of the dataset. e.g: /home/wikiText/wiki_train.txt. Useful when working with nlp dataset
-outLocation: output path that will contain the shards when splitting into shards
-numberOfShards: number of shards 
+outLocation: output Path to save to computational dataset, could be HDFS based or s3 or local
  */
 
 class TextDataset(val dataName : String, val dataLocation : List[String]) {

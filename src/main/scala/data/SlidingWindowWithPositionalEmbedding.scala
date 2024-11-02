@@ -9,7 +9,7 @@ import org.nd4j.linalg.factory.Nd4j
 object SlidingWindowWithPositionalEmbedding extends Serializable {
   private val logger = AppLogger("SlidingWindowWithPositionalEmbedding")
   val tokenizer = new Tokenizer()
-  val model = EmbeddingModel.fromPretrained("/Users/manh/ScalaProjects/Data/EMB.zip")
+  val model = EmbeddingModel.fromPretrained("src/main/resources/EMB.zip")
 
   def createSlidingWindowWithPositionalEmbedding(tokens : List[String], windowSize : Int) : List[DataSet] = {
     tokens.sliding(windowSize).collect {

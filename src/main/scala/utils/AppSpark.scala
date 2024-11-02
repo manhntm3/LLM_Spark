@@ -11,7 +11,6 @@ object AppSpark {
         .config("spark.sql.session.timeZone", value = "UTC")
         .config("spark.driver.memory", value = "8G")
         .appName(appName)
-        .master("local[*]")
         .getOrCreate()
     } else {
       SparkSession
