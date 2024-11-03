@@ -53,12 +53,12 @@ object TransformerModel {
     logger.info(model.summary())
     val rawInput: INDArray = Nd4j.create(Array(Array(3947.0, 548, 19171, 31153, 3947.0, 548, 19171, 31153, 3947.0, 23)))
     val layerInput = Nd4j.expandDims(rawInput.permute(1,0),0)
-    for (i <- model.getLayers.indices) {
+    model.getLayers.indices.map( i => {
       logger.info(model.getLayer(i).toString)
       logger.info(s"Layer $i input shape: ${util.Arrays.toString(layerInput.shape())}")
       val layerOutput = model.feedForwardToLayer(i, layerInput).get(i + 1)
       logger.info(s"Layer $i output shape: ${util.Arrays.toString(layerOutput.shape())}")
-    }
+    })
   }
 
   def trainOneWord(model : MultiLayerNetwork, token: Int, predictToken: Int): Unit = {

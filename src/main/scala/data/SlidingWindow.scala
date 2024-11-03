@@ -26,7 +26,7 @@ object SlidingWindow {
     logger.info("Start parallelize")
     val slidingWindowDataset = distData.flatMap(sentence => createSlidingWindow(sentence, 4).iterator)
 
-    slidingWindowDataset.collect().foreach(window => {
+    slidingWindowDataset.collect().map(window => {
       logger.info("Input: " + window)
     })
     // Stop the Spark context

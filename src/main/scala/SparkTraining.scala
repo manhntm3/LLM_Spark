@@ -47,13 +47,14 @@ object SparkTraining {
     // Train the model using the DataSet
 
     logger.info("Training")
-    (0 until numEpochs).foreach( epoch => {
+    (0 until numEpochs).map( epoch => {
       dataset.persist()
       val startTime = System.currentTimeMillis()
       logger.warn("Start training epoch " + epoch)
       //sample with path String training instead of fitting all dataset
 //      sparkNet.fit("hdfs://localhost:9000/user/manh/WikiText")
       sparkNet.fit(dataset)
+      logger.warn(s"Learning rate: ${sparkNet.getNetwork.getLearningRate(0)}")
       // After the epoch ends
       val endTime = System.currentTimeMillis()
       logger.warn(s"Epoch time: ${endTime - startTime}ms")

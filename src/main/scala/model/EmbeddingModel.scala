@@ -66,12 +66,12 @@ object EmbeddingModel {
   def testModel(model : MultiLayerNetwork) : Unit = {
     logger.info(model.summary())
     val layerInput: INDArray = Nd4j.create(Array(Array(3947.0, 548, 19171, 31153)))
-    for (i <- model.getLayers.indices) {
+    model.getLayers.indices.map( i => {
       println(model.getLayer(i).toString)
       println(s"Layer $i input shape: ${util.Arrays.toString(layerInput.shape())}")
       val layerOutput = model.feedForwardToLayer(i, layerInput).get(i + 1)
       println(s"Layer $i output shape: ${util.Arrays.toString(layerOutput.shape())}")
-    }
+    })
   }
 
   def getParam(model : MultiLayerNetwork) : INDArray = model.getLayer(0).getParam("W")
@@ -136,7 +136,7 @@ object EmbeddingModel {
     // Sort and get top k
     val topKSimilarities = similaritiesList.sortBy(-_._2).tail.take(k)
 
-    topKSimilarities.foreach { case (index, score) =>
+    topKSimilarities.map { case (index, score) =>
       logger.debug(s"Element $index. Score: $score")
     }
 

@@ -140,7 +140,7 @@ object TextDataset {
     val fileSystem = FileSystem.get(new java.net.URI(hdfs), sc.hadoopConfiguration)
     val hdfsDirectoryPath = conf.getString("HDFSDirectory")
 
-    (0 until 10).foreach( count => {
+    (0 until 10).map( count => {
       if (dataSetIterator.hasNext) {
         val ds: DataSet = dataSetIterator.next()
         val filePath = s"$hdfs/$hdfsDirectoryPath/dataset_$count.bin"
