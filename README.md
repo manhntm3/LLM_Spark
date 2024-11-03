@@ -37,16 +37,16 @@ The dataset is managed through `TextDataset.scala`
 
 ## Dataset
 
-The dataset used in this assignment is `WikiText`. It contains many Wikipedia articles. \
-I downloaded it from [here](https://developer.ibm.com/exchanges/data/all/wikitext-103/) 
+The dataset used in this assignment is `Gutenberg`. It contains many books,articles,... \
+I downloaded it from [here](https://www.kaggle.com/datasets/mateibejan/15000-gutenberg-books/) 
 
-File `wiki.train.tokens` contains raw text by combining text from various articles into one large file.
+Folder `Gutenberg` will contain many small text files. The **folder directory path** is used as the first input.\
 For simplicity, I also used a small fraction of dataset (around 30MB) to train a viable model to reduce computation cost. Given the small size of the dataset, when tokenize and compute sliding window embedding, the generated dataset could be five times larger than the original size(~200MB).
 
 ### DataProcessing
 Data is load from input and map to sliding window: [TextDataset.scala](./src/main/scala/TextDataset.scala) 
 
-Each token is produced by `Jtokkit` the same way as the first homework, except for simplicity I only take the first element for every word. The wikipedia articles contain many new words and jargons so very likely the Jtokkit will produce a token with more than one integer. For example:  `Hello -> [1234, 21324]` only take `1234` \
+Each token is produced by `Jtokkit` the same way as the first homework, except for simplicity I only take the first element for every word. The books could contain many new words and jargons so very likely the Jtokkit will produce a token with more than one integer. For example:  `Hello -> [1234, 21324]` only take `1234` \
 The network then produce the probability of the next word based on the embedding and output via activation softmax layer. 
 
 I used 10 dimension for the embedding in my experiment. Higher dimension could give better accuracy but also increase the computing cost.
@@ -62,7 +62,17 @@ The idea is using current sliding window word embedding token to predict the nex
 
 We should call `.persist()` before do `.fit()` to keep the dataset in memory and avoid recomputation.
 
-I ran the training for 40 epochs, and the result could be seen as below:
+### Faster training:
+We can achieve faster training and reduce computation cost by pre-compute the data, save it on HDFS and pass the dataPath to model. The process is as below:
+```
+val slidingWindowDatasetPath = TextDataset.loadAndSaveData(args(0), sc, conf, conf.getInt("app.trainingParam.windowSize"))
+
+// Later when we train
+sparkNet.fit(slidingWindowDatasetPath)
+```
+
+I ran the training for 40 epochs, and the result could be seen as below
+
 
 
 # Deployment
@@ -73,7 +83,7 @@ I ran the training for 40 epochs, and the result could be seen as below:
 
 Set the training parameter in the config in the [application.conf](./src/main/resources/application.conf) 
 
-Assume `INPUT_DIRECTORY` is a directory contain the dataset, could be in local or in HDFS(e.g: `hdfs://localhost:9000/user/manh/WikiText/`) 
+Assume `INPUT_DIRECTORY` is a directory contain the dataset, could be in local or in HDFS(e.g: `hdfs://localhost:9000/user/manh/Gutenberg/`) 
 
 And `OUTPUT_DIRECTORY` is a directory where we want to save the model. Could be in local or in HDFS. The model will be saved as `outputModel.bin`
 
@@ -110,7 +120,7 @@ INPUT_DIRECTORY OUTPUT_DIRECTORY
 
 - From the EMR main console, click Create Cluster to start. 
 - Start config a cluster, select `EMR-Release 7.3.0`. In the software pre-installed, select `Hadoop 3.3.6` and `Spark 3.5.0` (discard other choice) 
-- Create a cluster configuration: pick One primary And Two Core in the set up. If the dataset is bigger, you might want to increase the number of Core Machine
+- Create a cluster configuration: pick One primary And at least Two Core in the set up. If the dataset is bigger, you might want to increase the number of Core Machine
 - Other settings: Scaling and provisioning, networking, security leave as default settings.
 - In the steps settings: Select the JAR file built from previous section (s3 path)
 
