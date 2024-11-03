@@ -3,7 +3,7 @@ import model.{ModelParam, TransformerModel}
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import utils.{AppConfig, AppLogger, AppSpark}
 
-object SparkAssigment {
+object SparkAssignment {
 
   def main(args: Array[String]): Unit = {
     // specify the log
@@ -25,6 +25,7 @@ object SparkAssigment {
     // Start load data from Spark
     logger.warn("Start load and parallelize data")
     val slidingWindowDataset = TextDataset.loadDataSpark(args(0), sc, conf.getInt("app.trainingParam.windowSize"))
+//    val slidingWindowDatasetPath = TextDataset.loadAndSaveData(args(0), sc, conf)
 
     logger.warn("Define Model using Deeplearning4J with Spark")
     // Load or create a model

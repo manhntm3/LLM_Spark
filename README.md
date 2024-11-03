@@ -73,15 +73,15 @@ sparkNet.fit(slidingWindowDatasetPath)
 
 I ran the training for 40 epochs, and the result could be seen as below (it will need more iteration to converge)
 
-![alt text](p1.png "Title")
+![alt text](fig/p1.png "Title")
 
 A simple model:
 
-![alt text](p2.png "Title")
+![alt text](fig/p2.png "Title")
 
 Memory management: 
 
-![alt text](p3.png "Title")
+![alt text](fig/p3.png "Title")
 
 # Deployment
 

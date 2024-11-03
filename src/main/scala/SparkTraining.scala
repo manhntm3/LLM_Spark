@@ -6,6 +6,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.deeplearning4j.spark.impl.multilayer.SparkDl4jMultiLayer
 import org.deeplearning4j.spark.impl.paramavg.ParameterAveragingTrainingMaster
+import org.deeplearning4j.ui.api.UIServer
 import org.deeplearning4j.ui.model.stats.StatsListener
 import org.deeplearning4j.ui.model.storage.FileStatsStorage
 import org.deeplearning4j.util.ModelSerializer
@@ -21,9 +22,10 @@ object SparkTraining {
 
   def train(sc: SparkSession, model : MultiLayerNetwork, dataset: RDD[DataSet], conf: Config, outputPath : String): Unit = {
 
-    //    val statsStorage = new FileStatsStorage(new File("myNetworkTrainingStats.dl4j"))  //If file already exists: load the data from it
-    //    val uiServer = UIServer.getInstance()
-    //    uiServer.attach(statsStorage)
+//    val statsStorage = new FileStatsStorage(new File("myNetworkTrainingStats.dl4j"))  //If file already exists: load the data from it
+//    val uiServer = UIServer.getInstance()
+//    uiServer.attach(statsStorage)
+
     logger.warn("Spark Distributed Training")
     val batchSizePerWorker = conf.getInt("app.trainingParam.batchSizePerWorker")
     val averageFrequency = conf.getInt("app.trainingParam.averagingFrequency")
@@ -36,7 +38,6 @@ object SparkTraining {
     //Create the SparkDl4jMultiLayer instance
     val sparkNet : SparkDl4jMultiLayer = new SparkDl4jMultiLayer(sc.sparkContext, model, trainingMaster)
 
-    //    model.setListeners(new ScoreIterationListener(10))
     val ss = new FileStatsStorage(new File("myNetworkTrainingStats.dl4j"))
     sparkNet.setListeners(ss, new ScoreIterationListener(1))
     sparkNet.setListeners(ss, Collections.singletonList(new StatsListener(null)))

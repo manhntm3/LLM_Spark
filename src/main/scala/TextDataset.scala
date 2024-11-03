@@ -109,7 +109,7 @@ object TextDataset {
   }
 
   // Way to load and save data to file instead of computing it everytime
-  def loadAndSaveData(inputPath: String, sc: SparkSession, conf: Config, windowSize: Int): String = {
+  def loadAndSaveData(inputPath: String, sc: SparkSession, conf: Config): String = {
 //     Other way to load data from local
     val dataset = TextDataset.loadData(TextDataset.fromConfig(conf))
     val sentences = TextDataset.preprocessData(dataset)
@@ -131,7 +131,6 @@ object TextDataset {
   def saveToFiles(textDataset: RDD[DataSet], conf: Config, sc : SparkContext) : String = {
 
     val numberOfRDDs = conf.getInt("numberOfRDDs")
-    val localPath = conf.getString("localDirectory")
 
     val lengthOfRDDs = (textDataset.count() / numberOfRDDs).toInt
     val dataSetIterator : DataSetIterator = new ListDataSetIterator(textDataset.collect().toList.asJava, lengthOfRDDs)
@@ -141,7 +140,7 @@ object TextDataset {
     val fileSystem = FileSystem.get(new java.net.URI(hdfs), sc.hadoopConfiguration)
     val hdfsDirectoryPath = conf.getString("HDFSDirectory")
 
-    (0 until 100).foreach( count => {
+    (0 until 10).foreach( count => {
       if (dataSetIterator.hasNext) {
         val ds: DataSet = dataSetIterator.next()
         val filePath = s"$hdfs/$hdfsDirectoryPath/dataset_$count.bin"
