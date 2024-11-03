@@ -34,6 +34,7 @@ class TextDataset(val dataName : String, val dataLocation : List[String]) {
 object TextDataset {
   private val logger = AppLogger("TextDataset")
 
+  // Load dataset from config
   def fromConfig(conf: Config): TextDataset = {
     val dataName = conf.getString("app.dataset.name")
     val inLocation: String = conf.getString("app.dataset.inputDirectory")
@@ -74,11 +75,12 @@ object TextDataset {
     }
   }
 
+  // Load dataset using normal File API
   def loadData(textDataset: TextDataset): List[String] = {
     val totalLines = getTotalLineCount(textDataset)
-    logger.info(s"Total lines in dataset: $totalLines")
+    logger.warn(s"Total lines in dataset: $totalLines")
 
-    logger.info("Start loading data ..")
+    logger.warn("Start loading data ..")
 
     textDataset.dataLocation.flatMap ( fileLocation => {
       val path = Paths.get(fileLocation)
@@ -95,14 +97,31 @@ object TextDataset {
     )
   }
 
+  // Load dataset using SparkAPI
   def loadDataSpark(inputPath : String, sc : SparkSession, windowSize: Int): RDD[DataSet] = {
-    logger.info(s"Load and computing dataset from : " + inputPath)
-    logger.info(s"Window Size : " + windowSize)
+    logger.warn(s"Load and computing dataset from : " + inputPath)
+    logger.warn(s"Window Size : " + windowSize)
     // Filter sentences that longer than 20 character and more than 5 words
     val distData = sc.sparkContext.textFile(inputPath).filter(_.length>20).filter(_.split(" ").length>5)
     distData.flatMap(sentence => {
       createSlidingWindowWithPositionalEmbedding(sentence.split(" ").toList, windowSize)
     })
+  }
+
+  // Way to load and save data to file instead of computing it everytime
+  def loadAndSaveData(inputPath: String, sc: SparkSession, conf: Config, windowSize: Int): String = {
+//     Other way to load data from local
+    val dataset = TextDataset.loadData(TextDataset.fromConfig(conf))
+    val sentences = TextDataset.preprocessData(dataset)
+    val distData = sc.sparkContext.parallelize(sentences)
+
+    val slidingWindowDataset = distData.flatMap(
+      sentence => createSlidingWindowWithPositionalEmbedding(sentence.split(" ").toList, conf.getInt("app.trainingParam.windowSize")
+    ).iterator)
+
+//     Save dataset to files
+    logger.warn("Start computing dataset and when finish save it to files")
+    TextDataset.saveToFiles(slidingWindowDataset, conf.getConfig("app.dataset"), sc.sparkContext)
   }
 
   def preprocessData(textDataset: List[String]): List[String] =
@@ -116,20 +135,8 @@ object TextDataset {
 
     val lengthOfRDDs = (textDataset.count() / numberOfRDDs).toInt
     val dataSetIterator : DataSetIterator = new ListDataSetIterator(textDataset.collect().toList.asJava, lengthOfRDDs)
-//    logger.error("Try saving it to Local Files")
-    // First try to save to local file
-//    val rootDir = new File(localPath)
-//    var count = 0
-//
-//    while (dataSetIterator.hasNext) {
-//      val ds: DataSet = dataSetIterator.next()
-//      val outFile = new File(rootDir, s"dataset_${count}.bin")
-//      ds.save(outFile)
-//      count = count + 1
-//      logger.error("Data process " + count)
-//    }
 
-    logger.info("Try saving it to HDFS Object File")
+    logger.warn("Try saving it to HDFS Object File")
     val hdfs = conf.getString("HDFS")
     val fileSystem = FileSystem.get(new java.net.URI(hdfs), sc.hadoopConfiguration)
     val hdfsDirectoryPath = conf.getString("HDFSDirectory")
@@ -149,8 +156,6 @@ object TextDataset {
         logger.info("Data process " + count)
       }
     })
-//    logger.info("Try saving it to HDFS Object Files")
-//    textDataset.saveAsObjectFile(hdfsObjectPath)
 
 //    logger.info("Try saving it to HDFS Files")
 //    val hdfsPath = conf.getString("HDFSFile")
