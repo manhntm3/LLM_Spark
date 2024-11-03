@@ -7,7 +7,7 @@ First Name: Manh \
 Last Name: Nguyen \
 UIN: 650327734 \
 UIC Mail: mnguy104@uic.edu \
-Link to youtube video: 
+Link to youtube video: https://youtu.be/d-TCa09b-8k
 
 # Homework 2
 ## Description
@@ -71,9 +71,17 @@ val slidingWindowDatasetPath = TextDataset.loadAndSaveData(args(0), sc, conf, co
 sparkNet.fit(slidingWindowDatasetPath)
 ```
 
-I ran the training for 40 epochs, and the result could be seen as below
+I ran the training for 40 epochs, and the result could be seen as below (it will need more iteration to converge)
 
+![alt text](p1.png "Title")
 
+A simple model:
+
+![alt text](p2.png "Title")
+
+Memory management: 
+
+![alt text](p3.png "Title")
 
 # Deployment
 
