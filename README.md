@@ -89,6 +89,9 @@ Memory management:
 
 ### Step to run locally
 
+Download the previous model from HW 1 from here: https://drive.google.com/file/d/1G_iwWFWvBpUqbrVKvWgPB-cDdwzTBOWM/view?usp=sharing
+and put it inside the resources folder
+
 Set the training parameter in the config in the [application.conf](./src/main/resources/application.conf) 
 
 Assume `INPUT_DIRECTORY` is a directory contain the dataset, could be in local or in HDFS(e.g: `hdfs://localhost:9000/user/manh/Gutenberg/`) 
