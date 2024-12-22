@@ -5,7 +5,7 @@ Class repository for CS441 on Cloud Computing taught at the University of Illino
 # Student information
 First Name: Manh \
 Last Name: Nguyen \
-Email: mnguy104@uic.edu \
+Email: mnguy104@uic.edu 
 
 # Homework 2
 ## Description
